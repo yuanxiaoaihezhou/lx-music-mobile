@@ -9,6 +9,7 @@
   "download_failed": "下载失败",
   "download_completed": "已下载",
   "download_empty": "还没有下载任务",
+  "download_summary": "已下载 {count} 首 · {size}",
   "download_pause": "暂停",
   "download_resume": "重新开始",
   "download_retry": "重试",

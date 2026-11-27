@@ -61,6 +61,7 @@ export default () => {
   }
   return (
     <View style={styles.container}>
+      {tasks.length ? <Text size={12} color={theme['c-font-label']} style={styles.summary}>{t('download_summary', { count: tasks.filter(task => task.status === 'completed').length, size: formatSize(tasks.reduce((total, task) => total + (task.status === 'completed' ? task.received : 0), 0)) || '0 KB' })}</Text> : null}
       <FlatList data={tasks} keyExtractor={item => item.id} renderItem={renderItem}
         ListEmptyComponent={<View style={styles.empty}><Text size={13} color={theme['c-font-label']}>{t('download_empty')}</Text></View>} />
     </View>
@@ -69,6 +70,7 @@ export default () => {
 
 const styles = createStyle({
   container: { flex: 1 },
+  summary: { paddingHorizontal: 18, paddingVertical: 12 },
   row: { minHeight: 62, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14 },
   song: { flex: 1, minHeight: 62, justifyContent: 'center' },
   subtitle: { marginTop: 4 },

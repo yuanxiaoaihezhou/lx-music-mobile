@@ -12,6 +12,7 @@ export interface DownloadPickerType {
 }
 
 const qualities: LX.Quality[] = ['128k', '320k', 'flac', 'flac24bit']
+const qualityLabels: Record<string, string> = { '128k': '128 kbps', '320k': '320 kbps', flac: 'FLAC', flac24bit: 'FLAC 24-bit' }
 
 export default forwardRef<DownloadPickerType>((_, ref) => {
   const popup = useRef<PopupType>(null)
@@ -34,7 +35,7 @@ export default forwardRef<DownloadPickerType>((_, ref) => {
       <View style={styles.list}>
         {qualities.map(quality => (
           <TouchableOpacity key={quality} style={styles.item} onPress={() => { choose(quality) }} accessibilityRole="button">
-            <Text size={15} color={theme['c-font']}>{quality === 'flac24bit' ? 'FLAC 24bit' : quality.toUpperCase()}</Text>
+            <Text size={15} color={theme['c-font']}>{qualityLabels[quality]}</Text>
           </TouchableOpacity>
         ))}
       </View>

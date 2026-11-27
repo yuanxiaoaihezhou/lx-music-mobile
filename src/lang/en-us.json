@@ -9,6 +9,7 @@
   "download_failed": "Download failed",
   "download_completed": "Downloaded",
   "download_empty": "No downloads yet",
+  "download_summary": "Downloaded: {count} · {size}",
   "download_pause": "Pause",
   "download_resume": "Restart",
   "download_retry": "Retry",
