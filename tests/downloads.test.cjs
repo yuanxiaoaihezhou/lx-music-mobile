@@ -56,6 +56,11 @@ async function main() {
   assert.equal(api.getDownloads()[0].status, 'completed')
   const path = await api.getDownloadedPath(music('a'))
   assert.ok(path.endsWith('.flac'))
+  const savedTask = api.getDownloads()[0]
+  savedTask.path = '/outside/foreign.flac'
+  files.set(savedTask.path, Buffer.from('fLaCdata'))
+  assert.equal(await api.getDownloadedPath(music('a')), null)
+  savedTask.path = path
   assert.equal(await api.addDownloads([music('a')], 'flac24bit'), 0)
   assert.equal(await api.getDownloadedPath(music('different')), null)
   assert.equal(await api.getDownloadedPath({ ...music('a'), source: 'kw' }), null)

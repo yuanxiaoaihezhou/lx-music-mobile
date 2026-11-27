@@ -87,6 +87,7 @@ export const getDownloadedPath = async(music: LX.Player.PlayMusic): Promise<stri
   const original = 'progress' in music ? music.metadata.musicInfo : music
   const found = tasks.find(task => task.music.id === original.id && task.music.source === original.source && task.status === 'completed' && task.path)
   if (!found?.path) return null
+  if (!found.path.startsWith(`${directory}/`) || found.path.includes('..')) return null
   try {
     const info = await RNFS.stat(found.path)
     if (Number(info.size) > 0 && (!found.total || Number(info.size) === found.total)) {
