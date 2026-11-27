@@ -105,8 +105,11 @@ export default forwardRef<OnlineListType, OnlineListProps>(({
       <ListMusicMultiAdd ref={listMusicMultiAddRef} onAdded={() => { hancelExitSelect() }} />
       <ListMenu
         ref={listMenuRef}
-        onPlay={info => { handlePlay(info.musicInfo) }}
-        onPlayLater={info => { hancelExitSelect(); handlePlayLater(info.musicInfo, info.selectedList, hancelExitSelect) }}
+        onPlay={info => {
+          const list = listRef.current?.getList()
+          handlePlay(list ?? [info.musicInfo], list ? info.index : 0)
+        }}
+        onPlayLater={(info, isTop) => { hancelExitSelect(); handlePlayLater(info.musicInfo, info.selectedList, hancelExitSelect, isTop) }}
         onCopyName={info => { handleShare(info.musicInfo) }}
         onAdd={handleAddMusic}
         onMusicSourceDetail={info => { void handleShowMusicSourceDetail(info.musicInfo) }}

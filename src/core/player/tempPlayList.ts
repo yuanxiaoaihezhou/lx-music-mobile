@@ -1,6 +1,7 @@
 import playerActions from '@/store/player/action'
 import playerState from '@/store/player/state'
-import { playNext } from './player'
+import { playQueueAt } from './player'
+import { getQueue, insertQueue } from './queue'
 
 
 /**
@@ -8,8 +9,9 @@ import { playNext } from './player'
  * @param list 歌曲列表
  */
 export const addTempPlayList = (list: LX.Player.TempPlayListItem[]) => {
-  playerActions.addTempPlayList(list)
-  if (!playerState.playMusicInfo.musicInfo) void playNext()
+  const wasEmpty = !playerState.playMusicInfo.musicInfo
+  insertQueue(list)
+  if (wasEmpty) void playQueueAt(getQueue().current)
 }
 /**
  * 从稍后播放列表移除歌曲

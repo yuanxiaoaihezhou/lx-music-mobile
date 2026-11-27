@@ -17,7 +17,7 @@ const hasUrlCache = async(musicInfo: LX.Music.MusicInfo) => {
 }
 export interface ListMenuProps {
   onPlay: (selectInfo: SelectInfo) => void
-  onPlayLater: (selectInfo: SelectInfo) => void
+  onPlayLater: (selectInfo: SelectInfo, isTop?: boolean) => void
   onAdd: (selectInfo: SelectInfo) => void
   onCopyName: (selectInfo: SelectInfo) => void
   onMusicSourceDetail: (selectInfo: SelectInfo) => void
@@ -57,6 +57,7 @@ export default forwardRef<ListMenuType, ListMenuProps>((props: ListMenuProps, re
     let has_url_cache = false
     const menu = [
       { action: 'play', label: t('play') },
+      { action: 'playNext', label: t('queue_play_next') },
       { action: 'playLater', label: t('play_later') },
       // { action: 'download', label: '下载' },
       { action: 'add', label: t('add_to') },
@@ -86,6 +87,9 @@ export default forwardRef<ListMenuType, ListMenuProps>((props: ListMenuProps, re
         break
       case 'playLater':
         props.onPlayLater(selectInfo)
+        break
+      case 'playNext':
+        props.onPlayLater(selectInfo, true)
         break
       case 'add':
         props.onAdd(selectInfo)

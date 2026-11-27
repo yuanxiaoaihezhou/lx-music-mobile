@@ -9,8 +9,10 @@ import playerState from '@/store/player/state'
 import settingState from '@/store/setting/state'
 import { onScreenStateChange } from '@/utils/nativeModules/utils'
 import { AppState } from 'react-native'
+import { saveQueueProgress } from '@/core/player/queue'
 
 const delaySavePlayInfo = throttleBackgroundTimer(() => {
+  saveQueueProgress(playerState.progress.nowPlayTime, playerState.progress.maxPlayTime)
   void savePlayInfo({
     time: playerState.progress.nowPlayTime,
     maxTime: playerState.progress.maxPlayTime,
@@ -93,6 +95,7 @@ export default () => {
     // handleSetTaskBarState(playProgress.progress, prevProgressStatus)
     // clearBufferTimeout()
     clearUpdateTimeout()
+    if (settingState.setting['player.isSavePlayTime']) saveQueueProgress(playerState.progress.nowPlayTime, playerState.progress.maxPlayTime)
   }
 
   const handleStop = () => {

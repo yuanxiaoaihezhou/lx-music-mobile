@@ -16,12 +16,12 @@ import { clearMusicUrlByMusic } from '@/utils/data'
 export const handlePlay = (listId: SelectInfo['listId'], index: SelectInfo['index']) => {
   void playList(listId, index)
 }
-export const handlePlayLater = (listId: SelectInfo['listId'], musicInfo: SelectInfo['musicInfo'], selectedList: SelectInfo['selectedList'], onCancelSelect: () => void) => {
+export const handlePlayLater = (listId: SelectInfo['listId'], musicInfo: SelectInfo['musicInfo'], selectedList: SelectInfo['selectedList'], onCancelSelect: () => void, isTop = false) => {
   if (selectedList.length) {
-    addTempPlayList(selectedList.map(s => ({ listId, musicInfo: s })))
+    addTempPlayList(selectedList.map(s => ({ listId, musicInfo: s, isTop })))
     onCancelSelect()
   } else {
-    addTempPlayList([{ listId, musicInfo }])
+    addTempPlayList([{ listId, musicInfo, isTop }])
   }
 }
 

@@ -1,11 +1,24 @@
 import { getPlayInfo } from '@/utils/data'
 import { getListMusics } from '@/core/list'
-import { playList, play } from '@/core/player/player'
+import { playList, play, playQueueAt } from '@/core/player/player'
+import { getQueue, getQueueProgress, restoreQueue } from '@/core/player/queue'
 
 
 export default async(setting: LX.AppSetting) => {
   const info = await getPlayInfo()
   global.lx.restorePlayInfo = null
+  if (await restoreQueue()) {
+    const queue = getQueue()
+    const item = queue.items[queue.current]
+    if (!item) return
+    const progress = await getQueueProgress(item.key)
+    const time = progress?.time ?? 0
+    const maxTime = progress?.maxTime ?? 0
+    global.lx.restorePlayInfo = { time, maxTime, listId: item.listId ?? '', index: 0 }
+    await playQueueAt(queue.current)
+    if (setting['player.startupAutoPlay']) setTimeout(play)
+    return
+  }
   if (!info?.listId || info.index < 0) return
 
   const list = await getListMusics(info.listId)
