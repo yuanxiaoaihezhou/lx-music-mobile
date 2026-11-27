@@ -1,0 +1,32 @@
+name: Build test APK
+
+on:
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Build bundled APK with the debug key
+        working-directory: android
+        env:
+          DISABLE_SVG: 1
+        run: >-
+          ./gradlew assembleRelease
+          -PMYAPP_UPLOAD_STORE_FILE=debug.keystore
+          -PMYAPP_UPLOAD_KEY_ALIAS=androiddebugkey
+          -PMYAPP_UPLOAD_STORE_PASSWORD=android
+          -PMYAPP_UPLOAD_KEY_PASSWORD=android
+      - uses: actions/upload-artifact@v4
+        with:
+          name: test-apk-debug-key
+          path: android/app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
+          retention-days: 7
