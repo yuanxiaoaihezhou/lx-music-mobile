@@ -14,6 +14,7 @@ import SettingPopup, { type SettingPopupType } from '../../components/SettingPop
 import { useStatusbarHeight } from '@/store/common/hook'
 import Btn from './Btn'
 import TimeoutExitBtn from './TimeoutExitBtn'
+import AudioQuality from '@/components/player/AudioQuality'
 
 export const HEADER_HEIGHT = scaleSizeH(_HEADER_HEIGHT)
 
@@ -26,7 +27,10 @@ const Title = () => {
   return (
     <View style={styles.titleContent}>
       <Text numberOfLines={1} style={styles.title}>{musicInfo.name}</Text>
-      <Text numberOfLines={1} style={styles.title} size={12} color={theme['c-font-label']}>{musicInfo.singer}</Text>
+      <View style={styles.subtitle}>
+        <Text numberOfLines={1} style={styles.singer} size={12} color={theme['c-font-label']}>{musicInfo.singer}</Text>
+        <AudioQuality />
+      </View>
     </View>
   )
 }
@@ -73,6 +77,8 @@ const styles = StyleSheet.create({
     // flex: 1,
     // textAlign: 'center',
   },
+  subtitle: { flexDirection: 'row', alignItems: 'center' },
+  singer: { flexShrink: 1 },
   icon: {
     paddingLeft: 4,
     paddingRight: 4,

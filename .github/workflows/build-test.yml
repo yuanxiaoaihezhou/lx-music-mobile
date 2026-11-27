@@ -28,5 +28,8 @@ jobs:
       - name: Word lyric regression checks
         run: node tests/word-lyric.test.cjs
 
+      - name: Audio quality regression checks
+        run: node tests/audio-quality.test.cjs
+
       - name: Test Build
         run: npm run build-test
