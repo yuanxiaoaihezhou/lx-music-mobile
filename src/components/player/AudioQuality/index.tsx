@@ -49,7 +49,7 @@ export default () => {
     void tipDialog({ title: t('audio_quality_title'), message: lines.join('\n') })
   }
   return (
-    <TouchableOpacity style={[styles.badge, { borderColor: theme['c-font-label'] }]} onPress={showDetails} accessibilityRole="button" accessibilityLabel={`${t('audio_quality_title')}: ${label}`}>
+    <TouchableOpacity style={[styles.badge, { borderColor: theme['c-font-label'] }]} onPress={showDetails} hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }} accessibilityRole="button" accessibilityLabel={`${t('audio_quality_title')}: ${label}`}>
       <Text size={10} color={theme['c-font-label']} numberOfLines={1}>{label}</Text>
     </TouchableOpacity>
   )
