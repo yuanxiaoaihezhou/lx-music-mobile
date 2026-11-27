@@ -2,6 +2,7 @@ import { playNext } from '@/core/player/player'
 import { updatePlayIndex } from '@/core/player/playInfo'
 import { throttleBackgroundTimer } from '@/utils/tools'
 import playerState from '@/store/player/state'
+import { getQueue } from '@/core/player/queue'
 
 const changedListIds = new Set<string | null>()
 
@@ -19,7 +20,7 @@ export default () => {
       //     setPlayMusicInfo(null, null)
       //   })
       // } else
-      if (!playerState.playMusicInfo.isTempPlay) {
+      if (!playerState.playMusicInfo.isTempPlay && !getQueue().items.length) {
         // console.log('current music removed')
         void playNext(true)
       }

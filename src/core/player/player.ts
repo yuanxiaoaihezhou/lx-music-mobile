@@ -27,7 +27,8 @@ import BackgroundTimer from 'react-native-background-timer'
 import { checkIgnoringBatteryOptimization, checkNotificationPermission, debounceBackgroundTimer } from '@/utils/tools'
 import { LIST_IDS } from '@/config/constant'
 import { addListMusics, removeListMusics } from '@/core/list'
-import { addDislikeInfo } from '@/core/dislikeList'
+import { addDislikeInfo, hasDislike } from '@/core/dislikeList'
+import { getQueue, replaceQueue, selectQueue, removeQueue, clearQueue, shuffleQueue } from '@/core/player/queue'
 
 // import { checkMusicFileAvailable } from '@renderer/utils/music'
 
@@ -275,6 +276,9 @@ export const playListById = async(listId: string, id: string) => {
   setPlayListId(listId)
   const musicInfo = getList(listId).find(m => m.id == id)
   if (!musicInfo) return
+  const list = getList(listId)
+  replaceQueue(listId, list, list.findIndex(item => item.id === id))
+  if (settingState.setting['player.togglePlayMethod'] == 'random') shuffleQueue()
   setPlayMusicInfo(listId, musicInfo)
   if (settingState.setting['player.isAutoCleanPlayedList'] || prevListId != listId) clearPlayedList()
   clearTempPlayeList()
@@ -287,6 +291,10 @@ export const playListById = async(listId: string, id: string) => {
  * @param index 播放的歌曲位置
  */
 export const playList = async(listId: string, index: number) => {
+  const list = getList(listId)
+  if (!list[index]) return
+  replaceQueue(listId, list, index)
+  if (settingState.setting['player.togglePlayMethod'] == 'random') shuffleQueue()
   const prevListId = playerState.playInfo.playerListId
   setPlayListId(listId)
   setPlayMusicInfo(listId, getList(listId)[index])
@@ -307,6 +315,26 @@ const randomNextMusicInfo = {
   info: null as LX.Player.PlayMusicInfo | null,
   // index: -1,
 }
+
+const getQueueStep = (direction: 1 | -1, isAuto: boolean) => {
+  const queue = getQueue()
+  const mode = settingState.setting['player.togglePlayMethod']
+  if (!queue.items.length || queue.current < 0 || (isAuto && mode == 'none')) return -1
+  if (isAuto && mode == 'singleLoop') {
+    const music = queue.items[queue.current].musicInfo
+    if ('progress' in music ? music.isComplate : !hasDislike(music)) return queue.current
+  }
+  for (let step = 1; step <= queue.items.length; step++) {
+    let index = queue.current + direction * step
+    if (index < 0 || index >= queue.items.length) {
+      if (isAuto && mode == 'list') return -1
+      index = (index + queue.items.length) % queue.items.length
+    }
+    const music = queue.items[index].musicInfo
+    if ('progress' in music ? music.isComplate : !hasDislike(music)) return index
+  }
+  return -1
+}
 export const resetRandomNextMusicInfo = () => {
   if (randomNextMusicInfo.info) {
     randomNextMusicInfo.info = null
@@ -315,6 +343,12 @@ export const resetRandomNextMusicInfo = () => {
 }
 
 export const getNextPlayMusicInfo = async(): Promise<LX.Player.PlayMusicInfo | null> => {
+  const queue = getQueue()
+  if (queue.items.length) {
+    const index = getQueueStep(1, true)
+    const item = queue.items[index]
+    return item ? { ...item, isTempPlay: false } : null
+  }
   if (playerState.tempPlayList.length) { // 如果稍后播放列表存在歌曲则直接播放改列表的歌曲
     const playMusicInfo = playerState.tempPlayList[0]
     return playMusicInfo
@@ -403,12 +437,46 @@ const handlePlayNext = async(playMusicInfo: LX.Player.PlayMusicInfo) => {
   setPlayMusicInfo(playMusicInfo.listId, playMusicInfo.musicInfo, playMusicInfo.isTempPlay)
   await handlePlay()
 }
+
+export const playQueueAt = async(index: number) => {
+  const item = selectQueue(index)
+  if (!item) return
+  setPlayListId(item.listId)
+  setPlayMusicInfo(item.listId, item.musicInfo)
+  await handlePlay()
+}
+
+export const playQueueList = async(items: LX.Player.PlayMusic[], index: number) => {
+  if (!items[index]) return
+  replaceQueue(null, items, index)
+  if (settingState.setting['player.togglePlayMethod'] == 'random') shuffleQueue()
+  await playQueueAt(getQueue().current)
+}
+
+export const removeQueueAt = async(index: number) => {
+  const wasCurrent = removeQueue(index)
+  if (!wasCurrent) return
+  const queue = getQueue()
+  if (queue.current < 0) await handleToggleStop()
+  else await playQueueAt(queue.current)
+}
+
+export const clearPlayQueue = async() => {
+  clearQueue()
+  await handleToggleStop()
+}
 /**
  * 下一曲
  * @param isAutoToggle 是否自动切换
  * @returns
  */
 export const playNext = async(isAutoToggle = false): Promise<void> => {
+  const queue = getQueue()
+  if (queue.items.length) {
+    const index = getQueueStep(1, isAutoToggle)
+    if (index >= 0) await playQueueAt(index)
+    return
+  }
   if (playerState.tempPlayList.length) { // 如果稍后播放列表存在歌曲则直接播放改列表的歌曲
     const playMusicInfo = playerState.tempPlayList[0]
     removeTempPlayList(0)
@@ -508,6 +576,12 @@ export const playNext = async(isAutoToggle = false): Promise<void> => {
  * 上一曲
  */
 export const playPrev = async(isAutoToggle = false): Promise<void> => {
+  const queue = getQueue()
+  if (queue.items.length) {
+    const index = getQueueStep(-1, isAutoToggle)
+    if (index >= 0) await playQueueAt(index)
+    return
+  }
   const playMusicInfo = playerState.playMusicInfo
   if (playMusicInfo.musicInfo == null) return handleToggleStop()
   const playInfo = playerState.playInfo

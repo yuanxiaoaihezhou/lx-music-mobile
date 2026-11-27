@@ -154,7 +154,7 @@ export default () => {
       <ListMenu
         ref={listMenuRef}
         onPlay={info => { handlePlay(info.listId, info.index) }}
-        onPlayLater={info => { hancelExitSelect(); handlePlayLater(info.listId, info.musicInfo, info.selectedList, hancelExitSelect) }}
+        onPlayLater={(info, isTop) => { hancelExitSelect(); handlePlayLater(info.listId, info.musicInfo, info.selectedList, hancelExitSelect, isTop) }}
         onRemove={info => { hancelExitSelect(); handleRemove(info.listId, info.musicInfo, info.selectedList, hancelExitSelect) }}
         onDislikeMusic={info => { void handleDislikeMusic(info.musicInfo) }}
         onCopyName={info => { handleShare(info.musicInfo) }}
