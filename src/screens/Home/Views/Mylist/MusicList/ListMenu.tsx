@@ -17,6 +17,7 @@ const initSelectInfo = {}
 export interface ListMenuProps {
   onPlay: (selectInfo: SelectInfo) => void
   onPlayLater: (selectInfo: SelectInfo, isTop?: boolean) => void
+  onDownload: (selectInfo: SelectInfo) => void
   onAdd: (selectInfo: SelectInfo) => void
   onMove: (selectInfo: SelectInfo) => void
   onEditMetadata: (selectInfo: SelectInfo) => void
@@ -72,7 +73,7 @@ export default forwardRef<ListMenuType, ListMenuProps>((props, ref) => {
       { action: 'play', label: t('play') },
       { action: 'playNext', label: t('queue_play_next') },
       { action: 'playLater', label: t('play_later') },
-      // { action: 'download', label: '下载' },
+      { action: 'download', disabled: isLocal, label: t('download_action') },
       { action: 'add', label: t('add_to') },
       { action: 'move', label: t('move_to') },
       { action: 'changePosition', label: t('change_position') },
@@ -116,6 +117,9 @@ export default forwardRef<ListMenuType, ListMenuProps>((props, ref) => {
         break
       case 'playNext':
         props.onPlayLater(selectInfo, true)
+        break
+      case 'download':
+        props.onDownload(selectInfo)
         break
       case 'add':
         props.onAdd(selectInfo)

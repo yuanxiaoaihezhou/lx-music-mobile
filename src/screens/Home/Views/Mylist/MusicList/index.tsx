@@ -15,6 +15,7 @@ import ListMusicSearch, { type ListMusicSearchType } from './ListMusicSearch'
 import MusicPositionModal, { type MusicPositionModalType } from './MusicPositionModal'
 import MetadataEditModal, { type MetadataEditType, type MetadataEditProps } from '@/components/MetadataEditModal'
 import MusicToggleModal, { type MusicToggleModalType } from './MusicToggleModal'
+import DownloadPicker, { type DownloadPickerType } from '@/components/DownloadPicker'
 
 
 export default () => {
@@ -29,6 +30,7 @@ export default () => {
   const musicPositionModalRef = useRef<MusicPositionModalType>(null)
   const metadataEditTypeRef = useRef<MetadataEditType>(null)
   const listMenuRef = useRef<ListMenuType>(null)
+  const downloadPickerRef = useRef<DownloadPickerType>(null)
   const musicToggleModalRef = useRef<MusicToggleModalType>(null)
   const layoutHeightRef = useRef<number>(0)
   const isShowMultipleModeBar = useRef(false)
@@ -149,12 +151,18 @@ export default () => {
       </View>
       <ListMusicAdd ref={listMusicAddRef} onAdded={hancelExitSelect} />
       <ListMusicMultiAdd ref={listMusicMultiAddRef} onAdded={hancelExitSelect} />
+      <DownloadPicker ref={downloadPickerRef} />
       <MusicPositionModal ref={musicPositionModalRef}
         onUpdatePosition={(info, postion) => { handleUpdateMusicPosition(postion, info.listId, info.musicInfo, info.selectedList, hancelExitSelect) }} />
       <ListMenu
         ref={listMenuRef}
         onPlay={info => { handlePlay(info.listId, info.index) }}
         onPlayLater={(info, isTop) => { hancelExitSelect(); handlePlayLater(info.listId, info.musicInfo, info.selectedList, hancelExitSelect, isTop) }}
+        onDownload={info => {
+          const songs = (info.selectedList.length ? info.selectedList : [info.musicInfo]).filter((music): music is LX.Music.MusicInfoOnline => music.source !== 'local')
+          downloadPickerRef.current?.show(songs)
+          hancelExitSelect()
+        }}
         onRemove={info => { hancelExitSelect(); handleRemove(info.listId, info.musicInfo, info.selectedList, hancelExitSelect) }}
         onDislikeMusic={info => { void handleDislikeMusic(info.musicInfo) }}
         onCopyName={info => { handleShare(info.musicInfo) }}

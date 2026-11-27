@@ -28,6 +28,7 @@ import { checkIgnoringBatteryOptimization, checkNotificationPermission, debounce
 import { LIST_IDS } from '@/config/constant'
 import { addListMusics, removeListMusics } from '@/core/list'
 import { addDislikeInfo, hasDislike } from '@/core/dislikeList'
+import { getDownloadedPath } from '@/core/download'
 import { getQueue, replaceQueue, selectQueue, removeQueue, clearQueue, shuffleQueue } from '@/core/player/queue'
 
 // import { checkMusicFileAvailable } from '@renderer/utils/music'
@@ -96,6 +97,9 @@ const delayRetry = async(musicInfo: LX.Music.MusicInfo | LX.Download.ListItem, i
 }
 const getMusicPlayUrl = async(musicInfo: LX.Music.MusicInfo | LX.Download.ListItem, isRefresh = false, isRetryed = false): Promise<string | null> => {
   // this.musicInfo.url = await getMusicPlayUrl(targetSong, type)
+  const downloaded = isRefresh ? null : await getDownloadedPath(musicInfo).catch(() => null)
+  if (global.lx.isPlayedStop || diffCurrentMusicInfo(musicInfo)) return null
+  if (downloaded) return downloaded
   setStatusText(global.i18n.t('player__getting_url'))
   addLoadTimeout()
 

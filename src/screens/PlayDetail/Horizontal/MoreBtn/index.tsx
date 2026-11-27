@@ -4,12 +4,14 @@ import PlayModeBtn from './PlayModeBtn'
 import MusicAddBtn from './MusicAddBtn'
 import TimeoutExitBtn from './TimeoutExitBtn'
 import PlayQueue from '@/components/player/PlayQueue'
+import DownloadButton from '@/components/player/DownloadButton'
 
 export default () => {
   return (
     <View style={styles.container}>
       <TimeoutExitBtn />
       <MusicAddBtn />
+      <DownloadButton />
       <PlayModeBtn />
       <PlayQueue horizontal />
     </View>

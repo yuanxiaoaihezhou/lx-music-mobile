@@ -8,6 +8,7 @@ import ListMusicAdd, { type MusicAddModalType as ListMusicAddType } from '@/comp
 import MultipleModeBar, { type MultipleModeBarType, type SelectMode } from './MultipleModeBar'
 import { clearMusicUrl, handleDislikeMusic, handlePlay, handlePlayLater, handleShare, handleShowMusicSourceDetail } from './listAction'
 import { createStyle } from '@/utils/tools'
+import DownloadPicker, { type DownloadPickerType } from '@/components/DownloadPicker'
 
 export interface OnlineListProps {
   onRefresh: ListProps['onRefresh']
@@ -37,6 +38,7 @@ export default forwardRef<OnlineListType, OnlineListProps>(({
   const listMusicAddRef = useRef<ListMusicAddType>(null)
   const listMusicMultiAddRef = useRef<ListAddMultiType>(null)
   const listMenuRef = useRef<ListMenuType>(null)
+  const downloadPickerRef = useRef<DownloadPickerType>(null)
   // const loadingMaskRef = useRef<LoadingMaskType>(null)
 
   useImperativeHandle(ref, () => ({
@@ -103,6 +105,7 @@ export default forwardRef<OnlineListType, OnlineListProps>(({
       </View>
       <ListMusicAdd ref={listMusicAddRef} onAdded={() => { hancelExitSelect() }} />
       <ListMusicMultiAdd ref={listMusicMultiAddRef} onAdded={() => { hancelExitSelect() }} />
+      <DownloadPicker ref={downloadPickerRef} />
       <ListMenu
         ref={listMenuRef}
         onPlay={info => {
@@ -110,6 +113,7 @@ export default forwardRef<OnlineListType, OnlineListProps>(({
           handlePlay(list ?? [info.musicInfo], list ? info.index : 0)
         }}
         onPlayLater={(info, isTop) => { hancelExitSelect(); handlePlayLater(info.musicInfo, info.selectedList, hancelExitSelect, isTop) }}
+        onDownload={info => { downloadPickerRef.current?.show(info.selectedList.length ? info.selectedList : [info.musicInfo]); hancelExitSelect() }}
         onCopyName={info => { handleShare(info.musicInfo) }}
         onAdd={handleAddMusic}
         onMusicSourceDetail={info => { void handleShowMusicSourceDetail(info.musicInfo) }}
