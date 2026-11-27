@@ -46,7 +46,6 @@ export default () => {
       `${t('audio_quality_sample_rate')}: ${sampleRate ?? t('audio_quality_unknown_value')}`,
     ]
     if (format && format.channels > 0) lines.push(`${t('audio_quality_channels')}: ${format.channels}`)
-    lines.push('', t('audio_quality_details_note'))
     void tipDialog({ title: t('audio_quality_title'), message: lines.join('\n') })
   }
   return (
