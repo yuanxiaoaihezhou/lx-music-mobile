@@ -99,6 +99,15 @@ async function main() {
   await api.deleteDownload(c.id)
   assert.equal(api.getDownloads().some(task => task.id === c.id), false)
   assert.equal(files.has(active.options.toFile), false)
+  await api.addDownloads([music('truncated')], '128k')
+  await tick()
+  const truncated = jobs[jobs.length - 1]
+  files.set(truncated.options.toFile, Buffer.from('fLaCdata'))
+  truncated.options.begin({ contentLength: 100 })
+  truncated.resolve({ statusCode: 200, bytesWritten: 8 })
+  await tick()
+  assert.equal(api.getDownloads().find(task => task.music.id === 'truncated').status, 'failed')
+  assert.equal(await api.getDownloadedPath(music('truncated')), null)
   console.log('Download checks passed')
 }
 main().catch(error => { console.error(error); process.exitCode = 1 })
