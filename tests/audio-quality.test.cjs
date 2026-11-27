@@ -1,0 +1,22 @@
+const assert = require('node:assert/strict')
+const fs = require('node:fs')
+const vm = require('node:vm')
+const ts = require('typescript')
+const source = fs.readFileSync('src/components/player/AudioQuality/format.ts', 'utf8')
+const code = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText
+const audio = {}
+vm.runInNewContext(code, { exports: audio, Number })
+assert.equal(audio.getCodecName('audio/flac'), 'FLAC')
+assert.equal(audio.getCodecName('audio/mp4a-latm'), 'AAC')
+assert.equal(audio.getCodecName('audio/unknown'), null)
+assert.equal(audio.isLosslessCodec('audio/flac'), true)
+assert.equal(audio.isLosslessCodec('audio/mpeg'), false)
+assert.equal(audio.getBitrateLabel(320000), '320 kbps')
+assert.equal(audio.getBitrateLabel(-1), null)
+assert.equal(audio.getSampleRateLabel(44100), '44.1 kHz')
+const info = { trackId: 'song__//nonce__//url' }
+assert.equal(audio.isCurrentAudioFormat(info, info.trackId, 'song'), true)
+assert.equal(audio.isCurrentAudioFormat(info, 'other', 'song'), false)
+assert.equal(audio.isCurrentAudioFormat(info, info.trackId, 'other'), false)
+assert.equal(audio.isCurrentAudioFormat({ trackId: 'song__//nonce__//default' }, 'song__//nonce__//default', 'song'), false)
+console.log('Audio format checks passed')
