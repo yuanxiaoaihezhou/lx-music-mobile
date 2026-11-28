@@ -2,7 +2,7 @@ import { FlatList, TouchableOpacity, View } from 'react-native'
 import Text from '@/components/common/Text'
 import { Icon } from '@/components/common/Icon'
 import { deleteDownload, pauseDownload, resumeDownload, useDownloads, type DownloadTask } from '@/core/download'
-import { playQueueList } from '@/core/player/player'
+import { playQueueList, playSingle } from '@/core/player/player'
 import { useI18n } from '@/lang'
 import { useTheme } from '@/store/theme/hook'
 import { confirmDialog, createStyle, toast } from '@/utils/tools'
@@ -25,9 +25,7 @@ export default () => {
   const theme = useTheme()
   const t = useI18n()
   const play = (task: DownloadTask) => {
-    const completed = tasks.filter(item => item.status === 'completed')
-    const index = completed.findIndex(item => item.id === task.id)
-    if (index >= 0) void playQueueList(completed.map(item => item.music), index)
+    if (task.status === 'completed') void playSingle(task.music)
   }
   const remove = (task: DownloadTask) => {
     void confirmDialog({ title: t('download_delete_title'), message: task.path ? t('download_delete_message') : '', cancelButtonText: t('cancel'), confirmButtonText: t('download_delete') }).then(async confirmed => {
@@ -61,7 +59,12 @@ export default () => {
   }
   return (
     <View style={styles.container}>
-      {tasks.length ? <Text size={12} color={theme['c-font-label']} style={styles.summary}>{t('download_summary', { count: tasks.filter(task => task.status === 'completed').length, size: formatSize(tasks.reduce((total, task) => total + (task.status === 'completed' ? task.received : 0), 0)) || '0 KB' })}</Text> : null}
+      {tasks.length ? <View style={styles.summaryRow}>
+        <Text size={12} color={theme['c-font-label']} style={styles.summary}>{t('download_summary', { count: tasks.filter(task => task.status === 'completed').length, size: formatSize(tasks.reduce((total, task) => total + (task.status === 'completed' ? task.received : 0), 0)) || '0 KB' })}</Text>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel={t('play_all')} disabled={!tasks.some(task => task.status === 'completed')} onPress={() => { void playQueueList(tasks.filter(task => task.status === 'completed').map(task => task.music), 0) }} style={styles.playAll}>
+          <Text size={12} color={theme['c-primary']}>{t('play_all')}</Text>
+        </TouchableOpacity>
+      </View> : null}
       <FlatList data={tasks} keyExtractor={item => item.id} renderItem={renderItem}
         ListEmptyComponent={<View style={styles.empty}><Text size={13} color={theme['c-font-label']}>{t('download_empty')}</Text></View>} />
     </View>
@@ -70,7 +73,9 @@ export default () => {
 
 const styles = createStyle({
   container: { flex: 1 },
-  summary: { paddingHorizontal: 18, paddingVertical: 12 },
+  summaryRow: { flexDirection: 'row', alignItems: 'center', paddingLeft: 18 },
+  summary: { flex: 1, paddingVertical: 12 },
+  playAll: { paddingHorizontal: 18, paddingVertical: 12 },
   row: { minHeight: 62, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14 },
   song: { flex: 1, minHeight: 62, justifyContent: 'center' },
   subtitle: { marginTop: 4 },

@@ -9,7 +9,7 @@ import { type DuplicateMusicItem, filterDuplicateMusic } from './utils'
 import { getListMusics, removeListMusics } from '@/core/list'
 import { Icon } from '@/components/common/Icon'
 import { useUnmounted } from '@/utils/hooks'
-import { playList } from '@/core/player/player'
+import { playSingle } from '@/core/player/player'
 import { useI18n } from '@/lang'
 import { handleRemove } from '../MusicList/listAction'
 import Button from '@/components/common/Button'
@@ -127,7 +127,7 @@ const List = ({ listId }: { listId: string }) => {
     void getListMusics(listId).then((list) => {
       const idx = list.findIndex(m => m.id == musicInfo.id)
       if (idx < 0) return
-      void playList(listId, idx)
+      void playSingle(list[idx], listId)
     })
   }, [listId])
   const handleRemovePress = useCallback((index: number) => {

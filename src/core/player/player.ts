@@ -29,7 +29,7 @@ import { LIST_IDS } from '@/config/constant'
 import { addListMusics, removeListMusics } from '@/core/list'
 import { addDislikeInfo, hasDislike } from '@/core/dislikeList'
 import { getDownloadedPath } from '@/core/download'
-import { getQueue, replaceQueue, selectQueue, removeQueue, clearQueue, shuffleQueue } from '@/core/player/queue'
+import { getQueue, replaceQueue, insertQueue, updateQueueItem, selectQueue, removeQueue, clearQueue, shuffleQueue } from '@/core/player/queue'
 
 // import { checkMusicFileAvailable } from '@renderer/utils/music'
 
@@ -276,17 +276,12 @@ const handlePlay = async() => {
  * @param id 歌曲id
  */
 export const playListById = async(listId: string, id: string) => {
-  const prevListId = playerState.playInfo.playerListId
-  setPlayListId(listId)
   const musicInfo = getList(listId).find(m => m.id == id)
   if (!musicInfo) return
-  const list = getList(listId)
-  replaceQueue(listId, list, list.findIndex(item => item.id === id))
-  if (settingState.setting['player.togglePlayMethod'] == 'random') shuffleQueue()
-  setPlayMusicInfo(listId, musicInfo)
-  if (settingState.setting['player.isAutoCleanPlayedList'] || prevListId != listId) clearPlayedList()
-  clearTempPlayeList()
-  await handlePlay()
+  const current = getQueue().current
+  if (current < 0) return playSingle(musicInfo, listId)
+  updateQueueItem(current, listId, musicInfo)
+  await playQueueAt(current)
 }
 
 /**
@@ -448,6 +443,19 @@ export const playQueueAt = async(index: number) => {
   setPlayListId(item.listId)
   setPlayMusicInfo(item.listId, item.musicInfo)
   await handlePlay()
+}
+
+export const playSingle = async(musicInfo: LX.Player.PlayMusic, listId: string | null = null) => {
+  const info = 'progress' in musicInfo ? musicInfo.metadata.musicInfo : musicInfo
+  let index = getQueue().items.findIndex(item => {
+    const existing = 'progress' in item.musicInfo ? item.musicInfo.metadata.musicInfo : item.musicInfo
+    return existing.id === info.id && existing.source === info.source
+  })
+  if (index < 0) {
+    insertQueue([{ listId, musicInfo }])
+    index = getQueue().items.length - 1
+  }
+  await playQueueAt(index)
 }
 
 export const playQueueList = async(items: LX.Player.PlayMusic[], index: number) => {

@@ -13,7 +13,6 @@ import DownloadPicker, { type DownloadPickerType } from '@/components/DownloadPi
 export interface OnlineListProps {
   onRefresh: ListProps['onRefresh']
   onLoadMore: ListProps['onLoadMore']
-  onPlayList?: ListProps['onPlayList']
   progressViewOffset?: ListProps['progressViewOffset']
   ListHeaderComponent?: ListProps['ListHeaderComponent']
   checkHomePagerIdle?: boolean
@@ -27,7 +26,6 @@ export interface OnlineListType {
 export default forwardRef<OnlineListType, OnlineListProps>(({
   onRefresh,
   onLoadMore,
-  onPlayList,
   progressViewOffset,
   ListHeaderComponent,
   checkHomePagerIdle = false,
@@ -90,7 +88,6 @@ export default forwardRef<OnlineListType, OnlineListProps>(({
           onSelectAll={isAll => multipleModeBarRef.current?.setIsSelectAll(isAll)}
           onRefresh={onRefresh}
           onLoadMore={onLoadMore}
-          onPlayList={onPlayList}
           progressViewOffset={progressViewOffset}
           ListHeaderComponent={ListHeaderComponent}
           checkHomePagerIdle={checkHomePagerIdle}

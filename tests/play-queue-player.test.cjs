@@ -53,6 +53,22 @@ async function main() {
   assert.equal(await player.getNextPlayMusicInfo(), null)
   await player.playNext(true)
   assert.equal(state.playMusicInfo.musicInfo.id, 'c')
+  const before = Array.from(queue.getQueue().items, item => item.musicInfo.id)
+  const single = { id: 'new', source: 'kw', name: 'new', meta: {} }
+  await player.playSingle(single)
+  assert.deepEqual(Array.from(queue.getQueue().items, item => item.musicInfo.id), [...before, 'new'])
+  assert.equal(state.playMusicInfo.musicInfo.id, 'new')
+  assert.equal(state.playMusicInfo.listId, null)
+  await player.playSingle(single)
+  assert.equal(queue.getQueue().items.length, before.length + 1)
+  await player.playSingle(songs[0], 'one')
+  assert.equal(queue.getQueue().items.length, before.length + 1)
+  assert.equal(state.playMusicInfo.musicInfo.id, 'a')
+  const key = queue.getQueue().items[queue.getQueue().current].key
+  await player.playListById('one', 'c')
+  assert.equal(queue.getQueue().items[queue.getQueue().current].key, key)
+  assert.deepEqual(Array.from(queue.getQueue().items, item => item.musicInfo.id), ['c', 'b', 'c', 'new'])
+  assert.equal(state.playMusicInfo.musicInfo.id, 'c')
   const search = ['x', 'y'].map(id => ({ id, name: id, meta: {} }))
   await player.playQueueList(search, 1)
   assert.equal(state.playMusicInfo.musicInfo.id, 'y')
@@ -63,6 +79,29 @@ async function main() {
   await new Promise(resolve => setTimeout(resolve, 10))
   assert.equal(selectedUrl, '/private/y.flac')
   assert.equal(onlineRequests, 0)
+  for (const [file, onlineImport, args] of [
+    ['src/screens/SonglistDetail/listAction.ts', '@/core/songlist', ['id', 'kw']],
+    ['src/screens/Home/Views/Leaderboard/listAction.ts', '@/core/leaderboard', ['kw__id']],
+  ]) {
+    let resolveList
+    const fullList = new Promise(resolve => { resolveList = resolve })
+    let tempList = null
+    let played = false
+    const action = load(file, {
+      [onlineImport]: { getListDetailAll: () => fullList },
+      '@/core/list': { setTempList: async (_, list) => { tempList = list } },
+      '@/core/player/player': { playList: async () => { played = true } },
+      '@/config/constant': { LIST_IDS: { TEMP: 'temp' } },
+    })
+    const pending = action.handlePlay(...args)
+    await Promise.resolve()
+    assert.equal(played, false)
+    assert.equal(tempList, null)
+    resolveList(search)
+    await pending
+    assert.deepEqual(Array.from(tempList, item => item.id), ['x', 'y'])
+    assert.equal(played, true)
+  }
   console.log('Player queue integration checks passed')
 }
 main().catch(error => { console.error(error); process.exitCode = 1 })

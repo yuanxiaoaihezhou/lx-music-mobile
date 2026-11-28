@@ -64,7 +64,7 @@ export const replaceQueue = (listId: string | null, items: LX.Player.PlayMusic[]
   if (current < 0 || current >= items.length) return
   publish({ items: items.map(item => makeItem(listId, item)), current, nextCount: 0 })
 }
-export const insertQueue = (items: LX.Player.TempPlayListItem[]) => {
+export const insertQueue = (items: Array<{ listId: string | null, musicInfo: LX.Player.PlayMusic, isTop?: boolean }>) => {
   let { current, nextCount } = state
   const result = [...state.items]
   const originalKeys = state.originalKeys ? [...state.originalKeys] : undefined
@@ -88,6 +88,12 @@ export const insertQueue = (items: LX.Player.TempPlayListItem[]) => {
     nextCount = Math.max(0, nextCount - 1)
   }
   publish({ items: result, current, nextCount, originalKeys })
+}
+export const updateQueueItem = (index: number, listId: string | null, musicInfo: LX.Player.PlayMusic) => {
+  if (!state.items[index]) return
+  const items = [...state.items]
+  items[index] = { ...items[index], listId, musicInfo }
+  publish({ ...state, items })
 }
 export const selectQueue = (index: number) => {
   if (index < 0 || index >= state.items.length) return null
