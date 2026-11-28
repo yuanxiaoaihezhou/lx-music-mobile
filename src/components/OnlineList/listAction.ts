@@ -1,4 +1,4 @@
-import { playQueueList, playNext } from '@/core/player/player'
+import { playSingle, playNext } from '@/core/player/player'
 import { addTempPlayList } from '@/core/player/tempPlayList'
 import settingState from '@/store/setting/state'
 import { confirmDialog, openUrl, shareMusic, toast } from '@/utils/tools'
@@ -9,7 +9,7 @@ import { toOldMusicInfo } from '@/utils'
 import { clearMusicUrlByMusic } from '@/utils/data'
 
 export const handlePlay = (list: LX.Music.MusicInfoOnline[], index: number) => {
-  void playQueueList(list, index)
+  if (list[index]) void playSingle(list[index])
 }
 export const handlePlayLater = (musicInfo: LX.Music.MusicInfoOnline, selectedList: LX.Music.MusicInfoOnline[], onCancelSelect: () => void, isTop = false) => {
   if (selectedList.length) {

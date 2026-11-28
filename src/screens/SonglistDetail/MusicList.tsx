@@ -2,7 +2,6 @@ import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'rea
 import OnlineList, { type OnlineListType, type OnlineListProps } from '@/components/OnlineList'
 import { clearListDetail, getListDetail, setListDetail, setListDetailInfo } from '@/core/songlist'
 import songlistState from '@/store/songlist/state'
-import { handlePlay } from './listAction'
 import Header, { type HeaderType } from './Header'
 import { useListInfo } from './state'
 
@@ -77,11 +76,6 @@ export default forwardRef<MusicListType, MusicListProps>(({ componentId }, ref) 
   }, [])
 
 
-  const handlePlayList: OnlineListProps['onPlayList'] = (index) => {
-    const listDetailInfo = songlistState.listDetailInfo
-    // console.log(songlistState.listDetailInfo)
-    void handlePlay(listDetailInfo.id, listDetailInfo.source, listDetailInfo.list, index)
-  }
   const handleRefresh: OnlineListProps['onRefresh'] = () => {
     const page = 1
     listRef.current?.setStatus('refreshing')
@@ -114,7 +108,6 @@ export default forwardRef<MusicListType, MusicListProps>(({ componentId }, ref) 
 
   return <OnlineList
     ref={listRef}
-    onPlayList={handlePlayList}
     onRefresh={handleRefresh}
     onLoadMore={handleLoadMore}
     ListHeaderComponent={header}

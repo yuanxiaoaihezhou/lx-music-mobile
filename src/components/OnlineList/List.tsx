@@ -7,7 +7,6 @@ import { createStyle, getRowInfo, type RowInfoType } from '@/utils/tools'
 import type { Position } from './ListMenu'
 import type { SelectMode } from './MultipleModeBar'
 import { useTheme } from '@/store/theme/hook'
-import settingState from '@/store/setting/state'
 import { MULTI_SELECT_BAR_HEIGHT } from './MultipleModeBar'
 import { useI18n } from '@/lang'
 import Text from '@/components/common/Text'
@@ -26,7 +25,6 @@ export interface ListProps {
   onSelectAll: (isAll: boolean) => void
   onRefresh: () => void
   onLoadMore: () => void
-  onPlayList?: (index: number) => void
   progressViewOffset?: number
   ListHeaderComponent?: FlatListType['ListEmptyComponent']
   checkHomePagerIdle: boolean
@@ -50,7 +48,6 @@ const List = forwardRef<ListType, ListProps>(({
   onSelectAll,
   onRefresh,
   onLoadMore,
-  onPlayList,
   progressViewOffset,
   ListHeaderComponent,
   checkHomePagerIdle,
@@ -157,12 +154,7 @@ const List = forwardRef<ListType, ListProps>(({
       if (isMultiSelectModeRef.current) {
         handleSelect(item, index)
       } else {
-        if (settingState.setting['list.isClickPlayList'] && onPlayList != null) {
-          onPlayList(index)
-        } else {
-          // console.log(currentList[index])
-          handlePlay(currentList, index)
-        }
+        handlePlay(currentList, index)
       }
     })
   }
