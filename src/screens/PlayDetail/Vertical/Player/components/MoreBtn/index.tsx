@@ -5,12 +5,14 @@ import MusicAddBtn from './MusicAddBtn'
 import DesktopLyricBtn from './DesktopLyricBtn'
 import CommentBtn from './CommentBtn'
 import PlayQueue from '@/components/player/PlayQueue'
+import DownloadButton from '@/components/player/DownloadButton'
 
 export default () => {
   return (
     <View style={styles.container}>
       <DesktopLyricBtn />
       <MusicAddBtn />
+      <DownloadButton />
       <PlayModeBtn />
       <CommentBtn />
       <PlayQueue />

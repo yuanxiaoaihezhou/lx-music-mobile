@@ -18,8 +18,10 @@ const songs = ['a', 'b', 'c'].map(id => ({ id, name: id, meta: {} }))
 const state = { playMusicInfo: { musicInfo: null, listId: null, isTempPlay: false }, playInfo: { playerListId: null }, tempPlayList: [], playedList: [], progress: { nowPlayTime: 0 } }
 const settings = { setting: { 'player.togglePlayMethod': 'listLoop' } }
 const stub = () => {}
+let selectedUrl = null
+let onlineRequests = 0
 const imports = {
-  '@/plugins/player': { isInitialized: () => true, setStop: async () => {}, isEmpty: () => true },
+  '@/plugins/player': { isInitialized: () => true, setStop: async () => {}, isEmpty: () => true, setResource: (_, url) => { selectedUrl = url } },
   '@/core/player/playInfo': { getList: () => songs, setPlayListId: id => { state.playInfo.playerListId = id }, setPlayMusicInfo: (id, musicInfo, isTempPlay = false) => { state.playMusicInfo = { listId: id, musicInfo, isTempPlay } } },
   '@/store/player/state': { __esModule: true, default: state },
   '@/store/setting/state': { __esModule: true, default: settings },
@@ -27,6 +29,8 @@ const imports = {
   '@/core/player/tempPlayList': { clearTempPlayeList: stub },
   '@/core/player/playedList': { clearPlayedList: stub, addPlayedList: stub },
   '@/core/dislikeList': { hasDislike: song => song.id === 'b' },
+  '@/core/download': { getDownloadedPath: async music => music.id === 'y' ? '/private/y.flac' : null },
+  '@/core/music': { getMusicUrl: async () => { onlineRequests++; return 'https://example.test' } },
   '@/utils/tools': { debounceBackgroundTimer: () => stub },
   '@/config/constant': { LIST_IDS: { PLAY_LATER: 'later' } },
   'react-native-background-timer': { clearTimeout: stub },
@@ -54,6 +58,11 @@ async function main() {
   assert.equal(state.playMusicInfo.musicInfo.id, 'y')
   assert.equal(state.playMusicInfo.listId, null)
   assert.deepEqual(Array.from(queue.getQueue().items, item => item.musicInfo.id), ['x', 'y'])
+  settings.setting['player.playQuality'] = '128k'
+  player.setMusicUrl(search[1])
+  await new Promise(resolve => setTimeout(resolve, 10))
+  assert.equal(selectedUrl, '/private/y.flac')
+  assert.equal(onlineRequests, 0)
   console.log('Player queue integration checks passed')
 }
 main().catch(error => { console.error(error); process.exitCode = 1 })

@@ -31,5 +31,8 @@ jobs:
       - name: Audio quality regression checks
         run: node tests/audio-quality.test.cjs
 
+      - name: Download regression checks
+        run: node tests/downloads.test.cjs
+
       - name: Test Build
         run: npm run build-test
